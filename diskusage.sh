@@ -59,9 +59,6 @@ do
         done
 done
 
-sorted_sizes+=(${pairs[@]})
-
-
 for ((i=0;i<${#impairs[@]};i++))
 do
         for ((j=i+1;j<${#impairs[@]};j++))
@@ -75,11 +72,42 @@ do
         done
 done
 
-sorted_sizes+=(${impairs[@]})
-
+i=0
+j=0
 k=0
+#rangement des valeurs triées dans le bon ordre
 
+while [ $i -lt ${#pairs[@]} ] && [ $j -lt ${#impairs[@]} ] 
+do
+        if [ ${impairs[$j]} -gt ${pairs[$i]} ] 
+        then
+                sorted_sizes[$k]=${impairs[$j]}
+                ((j++))
+                ((k++))
+        else
+                sorted_sizes[$k]=${pairs[$i]}
+                ((i++))
+                ((k++))
+        fi
+done
 
+#on ajoute les valeurs restantes du tableau qui n a pas ete parcouru entierement
+while [ $i -lt ${#pairs[@]} ]
+do
+        sorted_sizes[$k]=${pairs[$i]}
+        ((i++))
+        ((k++))
+done
+
+while [ $j -lt ${#impairs[@]} ]
+do
+        sorted_sizes[$k]=${impairs[$j]}
+        ((j++))
+        ((k++))
+done
+
+# on reassocie les tailles aux utilisateurs correspondants pour l'affichage
+k=0
 for ((i=0;i<${#sorted_sizes[@]};i++))
 do
         for ((j=1;j<${#usernames[@]};j+=2))
