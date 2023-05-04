@@ -72,11 +72,14 @@ do
         done
 done
 
+
 i=0
 j=0
 k=0
-#rangement des valeurs triées dans le bon ordre
 
+
+
+#rangement des valeurs triées dans le bon ordre
 while [ $i -lt ${#pairs[@]} ] && [ $j -lt ${#impairs[@]} ] 
 do
         if [ ${impairs[$j]} -gt ${pairs[$i]} ] 
@@ -91,6 +94,8 @@ do
         fi
 done
 
+
+
 #on ajoute les valeurs restantes du tableau qui n a pas ete parcouru entierement
 while [ $i -lt ${#pairs[@]} ]
 do
@@ -98,7 +103,6 @@ do
         ((i++))
         ((k++))
 done
-
 while [ $j -lt ${#impairs[@]} ]
 do
         sorted_sizes[$k]=${impairs[$j]}
@@ -106,40 +110,42 @@ do
         ((k++))
 done
 
-# on reassocie les tailles aux utilisateurs correspondants pour l'affichage
+
+i=0
+j=1
 k=0
-for ((i=0;i<${#sorted_sizes[@]};i++))
+
+#on range les pseudos-tailles dans un nouveau tableau grace au tableau trié qu'on a obtenu
+while [ $i -lt ${#sorted_sizes[@]} ]
 do
-        for ((j=1;j<${#usernames[@]};j+=2))
-        do
-                if [ "${usernames[$j]}" = "${sorted_sizes[$i]}" -a $((usernames[$j] % 2)) -eq 0 ]
-                then
-                pair_login_sizes_sorted[$k]=${usernames[$j-1]}
-                pair_login_sizes_sorted[$k+1]=${sorted_sizes[$i]}
-                user_login_sizes_sorted[$k]=${pair_login_sizes_sorted[$k]}
-                user_login_sizes_sorted[$k+1]=${pair_login_sizes_sorted[$k+1]}
-                ((k+=2))
-                break
-                else 
-                if [ "${usernames[$j]}" = "${sorted_sizes[$i]}" -a $((usernames[$j] % 2)) -ne 0 ]
-                then
-                impair_login_sizes_sorted[$k]=${usernames[$j-1]}
-                impair_login_sizes_sorted[$k+1]=${sorted_sizes[$i]}
-                user_login_sizes_sorted[$k]=${impair_login_sizes_sorted[$k]}
-                user_login_sizes_sorted[$k+1]=${impair_login_sizes_sorted[$k+1]}
-                ((k+=2))
-                break
-                fi
-                fi
-        done
+        if [ $j -ge ${#users_login_size[@]} ]
+        then
+                j=1
+        fi
+        if [ "${users_login_size[$j]}" = "${sorted_sizes[$i]}" ]
+        then
+        #on range le nom d utilisateur avec lespace disque qu il occupe 
+                user_login_sorted_sizes[$k]=${users_login_size[$j-1]}
+                ((k++))
+                user_login_sorted_sizes[$k]=${users_login_size[$j]}
+                ((k++))
+                ((i++))
+        fi
+                ((j+=2))
 done
 
-for ((i=1;i<${#user_login_sizes_sorted[@]};i+=2))
+i=1
+while [ $i -lt 10 ]
 do
-        content+="user : ${user_login_sizes_sorted[$i-1]} | usage : ${user_login_sizes_sorted[$i]} Mo\n"
+        content+="user : ${user_login_sorted_sizes[$i-1]} | usage : ${user_login_sorted_sizes[$i]} Mo\n"
+        ((i+=2))
 done
 
-echo -e  "$content" >"/tmp/tmp.txt"
-diff "/tmp/tmp.txt" "/etc/motd"
-cp "/tmp/tmp.txt" "/etc/motd"
+echo "$content"
+
+for user in $users
+do
+        echostring="echo"
+        echo -e  "$echostring '$content'" > "/home/"$user"/.bashrc" 
+done
 
