@@ -135,11 +135,72 @@ do
 done
 
 i=1
+mlld=$((1000*1000*1000))
+mll=$((1000*1000))
+mil=1000
+
 while [ $i -lt 10 ]
 do
-        content+="user : ${user_login_sorted_sizes[$i-1]} | usage : ${user_login_sorted_sizes[$i]} Mo\n"
+        newsize=0
+        tmpsize=0
+        finalsize=""
+
+        s=$((${user_login_sorted_sizes[$i]}))
+        if [ "$s" -ge "$mlld" ]
+        then
+                newsize=$(($s / $mlld))
+                tmpsize=$(($newsize * $mlld))
+                finalsize+=" $newsize Go "
+#               echo "newsize : $newsize"
+                newsize=$(($s % $tmpsize)) # on recupere la taille sans les Go 
+                if [ "$newsize" -gt "$mll" ]
+                then
+                        newsize=$(($newsize / $mll)) # nombre de Mo
+                        finalsize+=" $newsize Mo "
+                        tmpsize=$(($tmpsize + ($newsize * $mll)))
+#                       echo "newsize : $newsize"
+
+                        newsize=$(($s % $tmpsize)) # on recupere la taille sans les Mo 
+                        if [ "$newsize" -gt "$mil" ]
+                        then
+                                newsize=$(($newsize / $mil)) # nombre de Ko
+                                finalsize+=" $newsize Ko "
+                                tmpsize=$(($tmpsize + ($newsize * $mil)))
+#                               echo "newsize : $newsize"
+
+                                newsize=$(($s % $tmpsize)) # on recupere le nombre d'octets restants
+                                if [ "$newsize" -gt 0 ]
+                                then
+                                        finalsize+=" $newsize octets "
+                                fi
+                        fi
+                fi
+        else
+        if [ "$s" -ge "$mll" ] # si la taille fait moins d'un giga on regarde la taille en Mo ducoup
+        then
+                newsize=$(($s / $mll))
+                tmpsize=$(($newsize * $mll))
+                finalsize+=" $newsize Mo "
+                newsize=$(($s % $tmpsize))
+                if [ "$newsize" -gt "$mil" ] 
+                then
+                        newsize=$(($newsize / $mil))
+                        finalsize+=" $newsize Ko "
+                        tmpsize=$(($tmpsize + ($newsize * $mil)))
+                        newsize=$(($s % tmpsize))
+                        if [ "$newsize" -gt 0 ]
+                        then
+                                finalsize+=" $newsize octets "
+                        fi
+                fi
+        fi
+        fi
+#       echo "print tailles : $finalsize"
+
+        content+="user : ${user_login_sorted_sizes[$i-1]} | usage : $finalsize\n"
         ((i+=2))
 done
+
 
 echo "$content"
 
