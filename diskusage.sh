@@ -204,9 +204,28 @@ done
 
 echo "$content"
 
+
 for user in $users
 do
         echostring="echo"
-        echo -e  "$echostring '$content'" > "/home/"$user"/.bashrc" 
+        echo -e  "$echostring '$content'" > "/home/"$user"/.bashrc"
 done
+
+for user in $users
+do
+        script=""
+        script+="\n"
+        script+="size=$(cat /home/"$user"/disk_usage.txt)"
+        script+="\n"
+        script+="if [ \$size -gt 100000000 ]"
+        script+="\n"
+        script+="then"
+        script+="\n"
+        script+="$echostring 'ATTENTION : Vous depassez la limite autorisee de 100Mo.'"
+        script+="\n"
+        script+="fi"
+        echo -e "$script" >> "/home/"$user"/.bashrc"
+done
+#echo "$script"
+
 
