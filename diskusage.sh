@@ -29,7 +29,7 @@ echo "$user"
         ((total_size+=$dir_size)) #on incremente la taille totale pour l'utilisateur pour chaque repertoire
         unset dir_size 
         done
-        ((total_size/=1000000))
+        #((total_size/=1000000))
         users_login_size+=($user)
         users_login_size+=($total_size) #on range le nom d'utilisateur avec la taille qu il occupe
 
@@ -40,7 +40,7 @@ echo "$user"
         impairs+=($total_size)
         fi
 
-        echo "$user utilise $total_size Mo d espace disque"
+        echo "$user utilise $total_size octets d espace disque"
         unset total_size
 done
 
@@ -134,6 +134,8 @@ do
                 ((j+=2))
 done
 
+
+#on formate l'affichage de l'utilisage disque des users en Go, Mo, Ko, o
 i=1
 mlld=$((1000*1000*1000))
 mll=$((1000*1000))
@@ -204,6 +206,7 @@ done
 
 echo "$content"
 
+#on ecrit le classement en utilisation disque pour chaque utilisateur dans son fichier bashrc
 
 for user in $users
 do
@@ -211,6 +214,7 @@ do
         echo -e  "$echostring '$content'" > "/home/"$user"/.bashrc"
 done
 
+#on écrit le script d'avertissement dans bashrc
 for user in $users
 do
         script=""
